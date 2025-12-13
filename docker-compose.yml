@@ -1,0 +1,45 @@
+services:
+  discopanel:
+    image: nickheyer/discopanel:latest
+    container_name: discopanel
+    restart: unless-stopped
+    networks:
+      - minecraft
+    security_opt:
+      - label=disable
+    volumes:
+      # Docker socket for managing containers
+      - /var/run/docker.sock:/var/run/docker.sock:z
+
+      - ${DISCOPANEL_HOST_DATA_PATH}:/app/data
+
+      - ./backups:/app/backups
+      - ./tmp:/app/tmp
+
+      - ./config.yaml:/app/config.yaml:ro
+    env_file:
+      - .env
+    environment:
+      - DISCOPANEL_DATA_DIR=/app/data
+      - TZ=UTC
+
+  cloudflared-sync:
+    build: ./cloudflared-sync
+    container_name: cloudflared-sync
+    restart: unless-stopped
+    volumes:
+      - ${DISCOPANEL_HOST_DATA_PATH}:${DISCOPANEL_HOST_DATA_PATH}:z,ro
+    env_file:
+      - .env.defaults
+      - .env
+    environment:
+      - TZ=UTC
+    networks:
+      - minecraft
+    depends_on:
+      - discopanel
+
+networks:
+  minecraft:
+    name: minecraft
+    driver: bridge

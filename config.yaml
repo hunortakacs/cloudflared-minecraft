@@ -1,0 +1,14 @@
+proxy:
+  enabled: false
+
+docker:
+  network_name: "minecraft"
+
+minecraft:
+  reset_global: true
+  global_config:
+    onlineMode: false
+
+    memory: "1G"
+    initMemory: "1G"
+    maxMemory: "1G"
